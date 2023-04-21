@@ -16,7 +16,6 @@ Aim of the project
 > ... Having fun...
 
 ```
->>>Note: Try coding yourself as much as possible.
 
 Features:
 - The normal game functionality
