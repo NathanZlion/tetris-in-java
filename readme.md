@@ -5,8 +5,7 @@ Idea
 
 A java tetris game.
 
-> The aim of this project is not only to make a good looking java application but also to learn the basics of java, and to get comfortable coding in java language. Plus get 
-better at writting cleancode.
+> The aim of this project is not only to make a good looking java application but also to learn the basics of java, and to get comfortable coding in java language. Plus get better at writting cleancode in java.
 ```
 Aim of the project
 > Learn java language
@@ -49,6 +48,3 @@ Screens
 [`progress track`](https://app.clickup.com/9009124457/v/l/s/90090257110)<br>
 [`online game play`](https://tetris.com/play-tetris)<br>
 [`Tutorial I Used`](https://youtu.be/dgVh6S8X25k)
-
-
-Okay, here's an updated file structure for your Tetris game Java project without the FXML files:
