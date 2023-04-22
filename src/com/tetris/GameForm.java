@@ -34,8 +34,8 @@ public class GameForm extends JFrame {
                     gameBoard.translateActiveCell(0, -1);
                 } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) { // move the block onestep right
                     gameBoard.translateActiveCell(0, 1);
-                } else if (e.getKeyCode() == KeyEvent.VK_UP) {   // rotates the block
-                    gameBoard.translateActiveCell(-1, 0);
+                } else if (e.getKeyCode() == KeyEvent.VK_UP) { // rotates the block
+                    gameBoard.rotateActiveBoard();
                 } else if (e.getKeyCode() == KeyEvent.VK_DOWN) { // go to the next move, one step down
                     gameBoard.translateActiveCell(1, 0);
                 } else if (e.getKeyCode() == KeyEvent.VK_P) { // pause / play the game
