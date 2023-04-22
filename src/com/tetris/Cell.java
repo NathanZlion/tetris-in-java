@@ -6,14 +6,7 @@ public class Cell {
     private Color color;
     private Boolean isActive;
     private Boolean isVisible;
-    public Boolean getIsVisible() {
-        return isVisible;
-    }
-
-    public void setIsVisible(Boolean isVisible) {
-        this.isVisible = isVisible;
-    }
-
+    
     Cell(Color color, Boolean isActive, Boolean isVisible){
         this.color = color;
         this.isActive = isActive;
@@ -34,5 +27,13 @@ public class Cell {
 
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    public Boolean getIsVisible() {
+        return isVisible;
+    }
+
+    public void setIsVisible(Boolean isVisible) {
+        this.isVisible = isVisible;
     }
 }

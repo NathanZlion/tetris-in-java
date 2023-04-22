@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
+import com.tetris.Blocks.Block;
+
 public class GameBoard extends JPanel {
     private int numberOfColumns;
     private int numberOfRows;
@@ -14,15 +16,17 @@ public class GameBoard extends JPanel {
     private int gameBoardHeight = 400;
     private final int startX;
     private final int startY;
+    static int numberRowsToSpawnNewBlock = 4;
     int CellHeightSize;
     int CellWidthSize;
-
-    // hold an Array Of Array of Cells;
     Cell[][] boardCells;
+    Block currentActiveBlock;
+    int currentActiveBlockRowPosition;
+    int currentActiveBlockColumnPosition;
 
     public GameBoard(int numberOfColumns, int numberOfRows, GameForm gameForm) {
         this.numberOfColumns = numberOfColumns;
-        this.numberOfRows = numberOfRows;
+        this.numberOfRows = numberOfRows + numberRowsToSpawnNewBlock;
 
         // Calculate the starting X and Y coordinates to center the game board
         this.startX = (GameForm.FRAME_WIDTH - gameBoardWidth) / 2;
@@ -31,13 +35,16 @@ public class GameBoard extends JPanel {
         CellWidthSize = this.gameBoardWidth / this.numberOfColumns;
 
         // Set the border and background color of the game board
-        this.setBorder(new LineBorder(Color.BLACK, 2));
+        this.setBorder(new LineBorder(Color.BLACK, 5));
         this.setBackground(Color.WHITE);
 
-        boardCells = new Cell[numberOfRows][numberOfColumns];
-        for (int row = 0; row < numberOfRows; row++) {
+        // I should leave 4 Rows on top as a spawning area for the new block.
+        // This way the blocks look like they are being created outside the map
+        // But the 4 rows should stay hidden.
+        boardCells = new Cell[numberOfRows + numberRowsToSpawnNewBlock][numberOfColumns];
+        for (int row = 0; row < boardCells.length; row++) {
             for (int col = 0; col < this.numberOfColumns; col++) {
-                boardCells[row][col] = new Cell(Color.pink, false, false);
+                boardCells[ row][col] = new Cell(Color.BLUE, false, false);
             }
         }
     }
@@ -46,15 +53,47 @@ public class GameBoard extends JPanel {
      * Should spawn a new random Block and shows it.
      */
     public void spawnRandomBlock() {
-        System.out.println("Space bar pressed");
-        for (Cell[] row : boardCells) {
-            for (Cell c : row) {
-                c.setIsVisible(!c.getIsVisible());
+        Block newBlock = Block.getRandomBlockType();
+        System.out.println(newBlock.getClass());
+        addNewBlockToBoard(newBlock);
+        // does the re-rendering on the screen
+        repaint();
+    }
+
+    private void addNewBlockToBoard(Block newBlock) {
+        currentActiveBlock = newBlock;
+        Color newBlockColor = newBlock.getColor();
+        int newBlockGridSize = currentActiveBlock.getGridSize();
+        int[][] newBlockState = newBlock.getCurrentState();
+
+        currentActiveBlockRowPosition = 4;
+        currentActiveBlockColumnPosition = (numberOfColumns - newBlockGridSize) / 2;
+
+        for (int row = 0; row < newBlockGridSize; row++) {
+            for (int col = 0; col < newBlockGridSize; col++) {
+                if (newBlockState[row][col] == 1){
+                    boardCells[currentActiveBlockRowPosition + row][currentActiveBlockColumnPosition + col].setColor(newBlockColor);
+                    boardCells[currentActiveBlockRowPosition + row][currentActiveBlockColumnPosition + col].setIsVisible(true); //make visible
+                }
             }
         }
+    }
 
-        // does the re-rendering the screen
-        repaint();
+    private void rotateActiveBoard() {
+
+    }
+
+    private void nextMove() {
+    }
+
+    private void eraseCompleteLines() {
+    }
+
+    private void eraseLine(int rowIndex) {
+    }
+
+    private Boolean gameOver() {
+        return true;
     }
 
     @Override
@@ -64,25 +103,44 @@ public class GameBoard extends JPanel {
         // Set the bounds of the game board to center it
         this.setBounds(this.startX, this.startY, this.gameBoardWidth, this.gameBoardHeight);
 
-        // Calculate the size of each Cell in the game board
-
         // Draw the Cells of the game board
-        for (int row = 0; row < numberOfRows; row++) {
+        for (int row = numberRowsToSpawnNewBlock; row < boardCells.length; row++) {
             for (int col = 0; col < this.numberOfColumns; col++) {
-                g.setColor(boardCells[row][col].getIsVisible() ? boardCells[row][col].getColor() : Color.GREEN); //
                 // white fill color for empty Cells
-
+                g.setColor(boardCells[row][col].getIsVisible() ? boardCells[row][col].getColor() : Color.WHITE);
                 g.fillRect(col * CellWidthSize, row * CellHeightSize, CellWidthSize, CellHeightSize);
                 g.setColor(Color.BLACK); // black borders
                 g.drawRect(col * CellWidthSize, row * CellHeightSize, CellWidthSize, CellHeightSize);
             }
         }
-
     }
 
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(this.gameBoardWidth, this.gameBoardHeight);
     }
+
+    // Hold a state of the starting position.
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+
+    /*
+     * hold a position array of the currently spawned block
+     * chech everytime if the next move is possible.
+     * - change state to next state: fall one step.
+     * If not possible
+     * - check if gameover:
+     * - If Gameover Set the Highscore and
+     * - show the Game Over View and Give option to restart or exit.
+     * - else:
+     * - change state to next state: fall one step.
+     * 
+     */
 
 }
