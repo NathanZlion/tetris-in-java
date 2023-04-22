@@ -29,18 +29,16 @@ public class GameForm extends JFrame {
                 // Check for the spacebar key code and do something withit.
 
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    // moves the block to the ground
                     gameBoard.spawnRandomBlock(); // test
-                } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    // moves the block one step left
-                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    // move the block onestep right
-                } else if (e.getKeyCode() == KeyEvent.VK_UP) {
-                    // rotates the block
-                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    // go to the next move, one step down
-                } else if (e.getKeyCode() == KeyEvent.VK_P) {
-                    // pause / play the game
+                } else if (e.getKeyCode() == KeyEvent.VK_LEFT) { // moves the block one step left
+                    gameBoard.translateActiveCell(0, -1);
+                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) { // move the block onestep right
+                    gameBoard.translateActiveCell(0, 1);
+                } else if (e.getKeyCode() == KeyEvent.VK_UP) {   // rotates the block
+                    gameBoard.translateActiveCell(-1, 0);
+                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) { // go to the next move, one step down
+                    gameBoard.translateActiveCell(1, 0);
+                } else if (e.getKeyCode() == KeyEvent.VK_P) { // pause / play the game
                 }
             }
         });
