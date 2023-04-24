@@ -6,6 +6,7 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
+import javax.xml.transform.Source;
 
 import com.tetris.Blocks.Block;
 
@@ -54,9 +55,14 @@ public class GameBoard extends JPanel {
      */
     public void spawnRandomBlock() {
         toggleOffActiveCells();
+        eraseCompleteLines();
         Block newBlock = Block.getRandomBlockType();
         System.out.println(newBlock.getClass()); // for debugging purpose only
-
+        
+        
+        if (getGameIsOver()){
+            GameForm.DisplayGameOverView();
+        }
         addNewBlockToBoard(newBlock);
         // does the re-rendering on the screen
         repaint();
@@ -84,39 +90,6 @@ public class GameBoard extends JPanel {
         }
     }
 
-    // public Boolean translateActiveCell(int translationRow, int translationColumn)
-    // {
-    // if (currentActiveBlock == null)
-    // return false;
-
-    // if (isPossibleTranslation(translationRow, translationColumn)) {
-    // System.out.println("Fin");
-
-    // // hold an array of all active cells translation.
-    // // erase active cells that are on the board
-    // // use the array you hold to toggle them on and active
-    // ArrayList<int[]> translatedActiveCell = new ArrayList<>();
-
-    // for (int row = 0; row < boardCells.length; row++) {
-    // for (int col = 0; col < boardCells[0].length; col++) {
-    // Cell currCell = boardCells[row][col];
-    // if (currCell.getIsActive() && currCell.getIsVisible())
-    // translatedActiveCell.add(new int[] { row + translationRow, col +
-    // translationColumn });
-    // }
-    // }
-    // inactiveAndInvisibleAllActiveCells();
-    // for (int[] nextRowAndCol : translatedActiveCell) {
-    // int row = nextRowAndCol[0];
-    // int col = nextRowAndCol[1];
-    // toggleCellOn(row, col, currentActiveBlock.getColor(), true);
-    // }
-    // repaint();
-    // return true;
-    // }
-
-    // return false;
-    // }
     public Boolean translateActiveCell(int translationRow, int translationColumn) {
         if (currentActiveBlock == null)
             return false;
@@ -127,47 +100,11 @@ public class GameBoard extends JPanel {
             return true;
         }
         return false;
-
-    }
-
-    private void toggleCellOn(int row, int col, Color color, Boolean isActive) {
-        boardCells[row][col].setColor(color);
-        boardCells[row][col].setIsActive(isActive);
-        boardCells[row][col].setIsVisible(true);
-    }
-
-    private void inactiveAndInvisibleAllActiveCells() {
-        for (int row = 0; row < boardCells.length; row++) {
-            for (int col = 0; col < boardCells[0].length; col++) {
-                if (boardCells[row][col].getIsActive())
-                    toggleCellInactiveAndInvisible(row, col);
-            }
-        }
-
-    }
-
-    private void inactiveAllActiveCells() {
-        for (int row = 0; row < boardCells.length; row++) {
-            for (int col = 0; col < boardCells[0].length; col++) {
-                if (boardCells[row][col].getIsActive())
-                    toggleCellInactive(row, col);
-            }
-        }
-    }
-
-    private Cell toggleCellInactive(int row, int col) {
-        boardCells[row][col].setIsActive(false);
-        return boardCells[row][col];
-    }
-
-    private void toggleCellInactiveAndInvisible(int row, int col) {
-        toggleCellInactive(row, col);
-        boardCells[row][col].setIsVisible(false);
     }
 
     public void rotateActiveBoard() {
         int[][] nextRotationState = currentActiveBlock.getNextRotationState();
-        System.out.println(isPossibleActiveBlockShape(nextRotationState));
+
         if (isPossibleActiveBlockShape(nextRotationState)) {
             currentActiveBlock.rotate();
             paintActiveCellStateOnBoard();
@@ -175,7 +112,7 @@ public class GameBoard extends JPanel {
     }
 
     private void paintActiveCellStateOnBoard() {
-        toggleOffActiveAndVanishCells();
+        toggleActiveCellsInactiveAndInvisible();
         int[][] newState = currentActiveBlock.getCurrentState();
 
         int newRow, newCol;
@@ -194,7 +131,7 @@ public class GameBoard extends JPanel {
         repaint();
     }
 
-    private void toggleOffActiveAndVanishCells() {
+    private void toggleActiveCellsInactiveAndInvisible() {
         for (Cell[] row : boardCells) {
             for (Cell c : row) {
                 if (c.getIsActive()) {
@@ -208,9 +145,7 @@ public class GameBoard extends JPanel {
     private void toggleOffActiveCells() {
         for (Cell[] row : boardCells) {
             for (Cell c : row) {
-                if (c.getIsActive()) {
-                    c.setIsActive(false);
-                }
+                c.setIsActive(false);
             }
         }
     }
@@ -242,13 +177,12 @@ public class GameBoard extends JPanel {
                 if (newState[row][col] == 1) {
                     newRow = currentActiveBlockRowPosition + row;
                     newCol = currentActiveBlockColumnPosition + col;
-                    if (boardCells[newRow][newCol].getIsActive())
-                        continue;
                     if (!isInbound(newRow, newCol))
                         return false;
+                    if (boardCells[newRow][newCol].getIsActive())
+                        continue;
                     if (boardCells[newRow][newCol].getIsVisible())
                         return false;
-
                 }
             }
         }
@@ -260,15 +194,49 @@ public class GameBoard extends JPanel {
     }
 
     private void eraseCompleteLines() {
+        // detect a complete line and call the delete line with it's row index
+        for (int row = 0; row < boardCells.length; row++)
+            if (isLineComplete(row))
+                eraseLine(row);
     }
 
     private void eraseLine(int rowIndex) {
         // replace all lines with the one above the
         // starting from the rowIndex given going up.
+
+        // replacing both visibility and color.
+        for (int row = rowIndex; row > 0; row--) {
+            for (int col = 0; col < boardCells[0].length; col++) {
+                boardCells[row][col].setColor(boardCells[row - 1][col].getColor());
+                boardCells[row][col].setIsVisible(boardCells[row - 1][col].getIsVisible());
+            }
+        }
+
+        // erase the 0 index row
+        for (Cell cell : boardCells[0]) {
+            cell.setIsVisible(false);
+        }
+
     }
 
-    private Boolean gameOver() {
+    private Boolean isLineComplete(int rowIndex) {
+        for (Cell cell : boardCells[rowIndex]) {
+            if (!cell.getIsVisible() && !cell.getIsActive())
+                return false;
+        }
         return true;
+    }
+
+    private Boolean getGameIsOver() {
+        // check whether there are any visible cells on the top 4 Rows.
+        for (int row = 0; row < 4; row++) {
+            for (Cell cell : boardCells[row]) {
+                if (cell.getIsVisible()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

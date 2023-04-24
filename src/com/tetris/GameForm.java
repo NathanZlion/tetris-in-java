@@ -54,4 +54,8 @@ public class GameForm extends JFrame {
 
         setVisible(true);
     }
+
+    public static void DisplayGameOverView() {
+        // to be implemented
+    }
 }
