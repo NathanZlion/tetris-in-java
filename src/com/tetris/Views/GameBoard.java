@@ -273,6 +273,12 @@ public class GameBoard extends JPanel {
         return new Dimension(this.gameBoardWidth, this.gameBoardHeight);
     }
 
+    public void translateActiveCellAllTheWayDown() {
+        while (isPossibleTranslation(1, 0)){
+            translateActiveCell(1, 0);
+        }
+    }
+
     // Hold a state of the starting position.
     //
     //

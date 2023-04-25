@@ -5,7 +5,7 @@ import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
- import com.tetris.Views.GameBoard;
+import com.tetris.Views.GameBoard;
 // import com.tetris.Views.SplashScreen;
 
 public class GameForm extends JFrame {
@@ -15,7 +15,6 @@ public class GameForm extends JFrame {
     // hold state of game
     // Instance of screen => Game screen, Menu screen, High Score screen
     // Call the key handler on the current screen instance.
-
 
     public GameForm() {
         setTitle("Tetris Game");
@@ -32,7 +31,7 @@ public class GameForm extends JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 // Check for the spacebar key code and do something withit.
-                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     gameBoard.spawnRandomBlock(); // test
                 } else if (e.getKeyCode() == KeyEvent.VK_LEFT) { // moves the block one step left
                     gameBoard.translateActiveCell(0, -1);
@@ -43,6 +42,8 @@ public class GameForm extends JFrame {
                 } else if (e.getKeyCode() == KeyEvent.VK_DOWN) { // go to the next move, one step down
                     gameBoard.translateActiveCell(1, 0);
                 } else if (e.getKeyCode() == KeyEvent.VK_P) { // pause / play the game
+                } else if (e.getKeyCode() == KeyEvent.VK_SPACE){
+                    gameBoard.translateActiveCellAllTheWayDown();
                 }
             }
         });
