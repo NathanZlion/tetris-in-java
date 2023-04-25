@@ -7,7 +7,7 @@ public class Cell {
     private Boolean isActive;
     private Boolean isVisible;
     
-    Cell(Color color, Boolean isActive, Boolean isVisible){
+    public Cell(Color color, Boolean isActive, Boolean isVisible){
         this.color = color;
         this.isActive = isActive;
         this.isVisible = isVisible;

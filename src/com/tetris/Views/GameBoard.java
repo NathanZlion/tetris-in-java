@@ -1,13 +1,12 @@
-package com.tetris;
+package com.tetris.Views;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
-import javax.xml.transform.Source;
-
+import com.tetris.Cell;
+import com.tetris.GameForm;
 import com.tetris.Blocks.Block;
 
 public class GameBoard extends JPanel {
@@ -24,6 +23,7 @@ public class GameBoard extends JPanel {
     Block currentActiveBlock;
     int currentActiveBlockRowPosition;
     int currentActiveBlockColumnPosition;
+    public int Highscore;
 
     public GameBoard(int numberOfColumns, int numberOfRows, GameForm gameForm) {
         this.numberOfColumns = numberOfColumns;
@@ -56,9 +56,7 @@ public class GameBoard extends JPanel {
     public void spawnRandomBlock() {
         toggleOffActiveCells();
         eraseCompleteLines();
-        Block newBlock = Block.getRandomBlockType();
-        System.out.println(newBlock.getClass()); // for debugging purpose only
-        
+        Block newBlock = Block.getRandomBlockType();        
         
         if (getGameIsOver()){
             GameForm.DisplayGameOverView();
