@@ -24,8 +24,8 @@ Features:
 		- `Left Key` : shift shape one block left
 		- `Right Key` : shift shape one block right
 		- `Down Key` : move one step down (makes the fall faster)
+		- `UP - key` : Rotate the shape
 		- `Space Key` : move the shape all the way down.
-		- `R - key` : Rotate the shape
 		- `P - key` : Pause / Play
 
 - High-score Recording : record the high-score so far.
