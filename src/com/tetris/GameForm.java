@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 import com.tetris.Views.GameBoard;
 // import com.tetris.Views.SplashScreen;
 
-public class GameForm extends JFrame {
+public class GameForm extends JFrame implements Runnable {
     public static final int FRAME_WIDTH = 230;
     public static final int FRAME_HEIGHT = 420;
     // private int highscore;
@@ -27,6 +27,14 @@ public class GameForm extends JFrame {
         // getContentPane().add(new SplashScreen());
         // Set the size of the frame to be slightly larger than the preferred size of
         // the game board
+        
+        //as a suggestion abstract this method to have it's own method or even better make it it's own class
+        //the constructor serves as a place to set up the things you want to do in your class don't add logic to it.
+        
+        //so at the very least make it it's own method
+        //plus I think the logic should be moved to the board instead of the Form
+        //after all the board is the one painting the stuff and tracking the blocks
+        
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -57,9 +65,42 @@ public class GameForm extends JFrame {
         int centerY = (screenSize.height - getHeight()) / 2;
         setLocation(centerX, centerY);
         setVisible(true);
+        
+        startTetrisGame();
     }
 
+    @Override
+	public void run() {
+		int frameDraws = 1000/60;
+		// Normally this is where you would call your update and repaint functions
+		//Frame draws is used for how many times a frame is drawn per second so every 16.6 MicroSecond repaint and update is applied
+		
+		//I just added a print to show you that the thread works
+		//Try and use the paintComponent method to draw your blocks it's more manageable
+		//java has the support that after you write the paintComponent you can call it here as repaint() so check that out
+		
+		while (true) {
+			System.out.println("Works!!");
+			try {
+				Thread.sleep(frameDraws);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	public void startTetrisGame() {
+		//this is called in the constructor of GameForm
+		//threads have an override method called run so when .start() is called I'm calling the run() method
+		
+		Thread tetrisThread = new Thread(this);
+		tetrisThread.start();
+	}
+    
     public static void DisplayGameOverView() {
         // to be implemented
     }
+
+	
+	
+
 }
