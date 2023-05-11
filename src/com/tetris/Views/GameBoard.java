@@ -48,6 +48,7 @@ public class GameBoard extends JPanel {
                 boardCells[row][col] = new Cell(Color.BLUE, false, false);
             }
         }
+
     }
 
     /**
@@ -56,15 +57,16 @@ public class GameBoard extends JPanel {
     public void spawnRandomBlock() {
         toggleOffActiveCells();
         eraseCompleteLines();
-        Block newBlock = Block.getRandomBlockType();        
-        
-        if (getGameIsOver()){
+        Block newBlock = Block.getRandomBlockType();
+
+        if (getGameIsOver()) {
             GameForm.DisplayGameOverView();
         }
         addNewBlockToBoard(newBlock);
         // does the re-rendering on the screen
         repaint();
     }
+
 
     private void addNewBlockToBoard(Block newBlock) {
         currentActiveBlock = newBlock;
@@ -148,10 +150,16 @@ public class GameBoard extends JPanel {
         }
     }
 
+    /**
+     * 
+     * @param translationRow
+     * @param translationColumn
+     * @return returns `True` if all active cells when translated with given translation the
+     * current active cells are inbound and do not coincide with other visible cells. else False.
+     * 
+     */
     private Boolean isPossibleTranslation(int translationRow, int translationColumn) {
-        // check if all active cells when translated with given translation
-        // the current active cells are inbound and do not coincide with other visible
-        // cells.
+
         for (int row = 0; row < boardCells.length; row++) {
             for (int col = 0; col < boardCells[0].length; col++) {
                 if (boardCells[row][col].getIsActive()) {
@@ -274,32 +282,8 @@ public class GameBoard extends JPanel {
     }
 
     public void translateActiveCellAllTheWayDown() {
-        while (isPossibleTranslation(1, 0)){
+        while (isPossibleTranslation(1, 0)) {
             translateActiveCell(1, 0);
         }
     }
-
-    // Hold a state of the starting position.
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-
-    /*
-     * hold a position array of the currently spawned block
-     * chech everytime if the next move is possible.
-     * - change state to next state: fall one step.
-     * If not possible
-     * - check if gameover:
-     * - If Gameover Set the Highscore and
-     * - show the Game Over View and Give option to restart or exit.
-     * - else:
-     * - change state to next state: fall one step.
-     * 
-     */
-
 }
