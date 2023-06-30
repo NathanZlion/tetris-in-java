@@ -9,7 +9,6 @@ import com.tetris.GameForm;
 public class GamePanel extends JPanel implements Runnable {
 
     Thread gamePanelThread;
-    public boolean runn = false;
     GameBoard gameBoard = new GameBoard();
     MainMenuScreen mainMenuScreen = new MainMenuScreen();
     // private boolean showBoard = false;
@@ -20,8 +19,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("run method called");
-        while (runn) {
+        while (gamePanelThread != null) {
             System.out.println("Working");
             update();
             repaint();
@@ -38,9 +36,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void startGameThread() {
-        System.out.println("This method is called");
-        gamePanelThread = new Thread();
+        gamePanelThread = new Thread(this);
         gamePanelThread.start();
-        runn = true;
     }
 }
