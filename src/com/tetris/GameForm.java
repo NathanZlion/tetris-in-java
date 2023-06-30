@@ -13,7 +13,7 @@ public class GameForm extends JFrame {
     public static final int FRAME_HEIGHT = 600;
     public static Rectangle rectangle = new Rectangle(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
-    GameForm() {
+    public GameForm() {
         setTitle("Tetris Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
