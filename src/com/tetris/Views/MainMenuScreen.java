@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
+
 public class MainMenuScreen {
 
     public int selectedOption = 0;
@@ -32,8 +33,8 @@ public class MainMenuScreen {
         g2.setFont(font);
 
         int height = 40;
-        for (String option : options) {
-            g2.drawString(option, 100, height);
+        for (int index = 0; index < options.length; index++) {
+            g2.drawString(options[index], 100, height);
             height += 40;
         }
     }

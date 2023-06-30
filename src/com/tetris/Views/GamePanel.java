@@ -14,6 +14,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     MainMenuScreen mainMenuScreen = new MainMenuScreen();
     private boolean showGame = true;
+    private final int FPS = 60;
 
     public GamePanel() {
         setBounds(GameForm.rectangle);
@@ -23,14 +24,29 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        while (gamePanelThread != null) {
-            update();
-            repaint();
+        double drawInterval = 1_000_000_000 / FPS;
+        double delta = 0; // the time change
+        long previousTime = System.nanoTime();
+        long currentTime;
+
+        // Used the delta/accumulator method to limit frame refresh rate to fps
+        while (gamePanelThread.isAlive()) {
+            currentTime = System.nanoTime();
+
+            delta += (currentTime - previousTime) / drawInterval;
+            previousTime = currentTime;
+
+            // if the time change has reached or exceeded the fps
+            if (delta >= 1) {
+                update();
+                repaint();
+                delta--;
+            }
         }
     }
 
     public void update() {
-        // System.out.println("updating");
+        // Handle User Inputs here
     }
 
     @Override

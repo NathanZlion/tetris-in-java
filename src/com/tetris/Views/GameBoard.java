@@ -93,6 +93,7 @@ public class GameBoard implements Runnable {
 
     @Override
     public void run() {
+
         /* the game logic inside the board */
         while (gameThread != null) {
             if (inPlay & !gameOver) {
