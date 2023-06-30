@@ -1,4 +1,4 @@
-package com.tetris.Blocks;
+package com.tetris.Entity.Blocks;
 
 import java.awt.Color;
 

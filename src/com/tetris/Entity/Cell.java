@@ -3,14 +3,21 @@ package com.tetris.Entity;
 import java.awt.Color;
 
 public class Cell {
-    private Color color;
-    private Boolean isActive;
-    private Boolean isVisible;
-    
-    public Cell(Color color, Boolean isActive, Boolean isVisible){
+    private Color color = Color.WHITE;
+    private Boolean isActive = false; // is falling down
+    private Boolean isVisible = false; // can be seen on the screen
+
+    public Cell(Color color, Boolean isActive, Boolean isVisible) {
         this.color = color;
         this.isActive = isActive;
         this.isVisible = isVisible;
+    }
+
+    public Cell() {
+        color = Color.WHITE;
+        isActive = false;
+        isVisible = false;
+
     }
 
     public Boolean getIsActive() {

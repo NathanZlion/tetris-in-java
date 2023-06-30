@@ -9,8 +9,8 @@ import com.tetris.Views.GamePanel;
 
 public class GameForm extends JFrame {
 
-    public static final int FRAME_WIDTH = 230;
-    public static final int FRAME_HEIGHT = 420;
+    public static final int FRAME_WIDTH = 500;
+    public static final int FRAME_HEIGHT = 600;
     public static Rectangle rectangle = new Rectangle(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
     GameForm() {
@@ -21,6 +21,7 @@ public class GameForm extends JFrame {
         gamepanel.startGameThread();
         setBounds(rectangle);
         add(gamepanel);
+        setLocationRelativeTo(null);
     }
 }
 

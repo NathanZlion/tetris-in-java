@@ -1,317 +1,309 @@
 package com.tetris.Views;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 
-public class GameBoard {
+import com.tetris.GameForm;
+import com.tetris.Entity.Cell;
+import com.tetris.Entity.Blocks.Block;
 
-    public int numberOfColumns;
-    public int numberOfRows;
+public class GameBoard implements Runnable {
+
+    // GAME BOARD SETTINGS
+    private final int TILE_SIZE = 40;
+    private static int numberRowsToSpawnNewBlock = 4;
+    public int padding = 50;
+
+    public int numberOfColumns = (GameForm.FRAME_WIDTH - (2 * padding)) / TILE_SIZE;
+    public int numberOfRows = (GameForm.FRAME_HEIGHT - (2 * padding)) / TILE_SIZE + numberRowsToSpawnNewBlock;
+
+    private Cell[][] boardCells;
+    public boolean inPlay = true;
+    public boolean gameOver = false;
+    private int OneTilePoint = 1;
+    public int score;
+
+    Block currentActiveBlock;
+    int currentActiveBlockRowPosition;
+    int currentActiveBlockColumnPosition;
+
+    Thread gameThread;
 
     public GameBoard() {
-
+        boardCells = new Cell[numberOfRows][numberOfColumns];
+        reset();
     }
 
-    public void draw (Graphics2D g2){
+    private void reset() {
+        // RESET ALL CELLS TO INACTIVE AND INVISIBLE
+        for (int row = 0; row < numberOfRows; row++) {
+            for (int col = 0; col < numberOfColumns; col++) {
+                boardCells[row][col] = new Cell();
+            }
+        }
+
+        // RESET SCORE
+        score = 0;
+        gameOver = false;
+    }
+
+    public void draw(Graphics2D g2) {
         // draws the game board on the screen
+        // Draw the spawning Area: Just for debugging purposse
+        for (int row = 0; row < numberRowsToSpawnNewBlock; row++) {
+            for (int col = 0; col < numberOfColumns; col++) {
+                // white fill color for empty Cells
+                int xPosition = col * TILE_SIZE + padding;
+                int yPosition = row * TILE_SIZE + padding - TILE_SIZE * numberRowsToSpawnNewBlock;
+                g2.setColor(boardCells[row][col].getIsVisible() ? boardCells[row][col].getColor().darker().darker()
+                        : Color.GRAY);
+                g2.fillRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);
+                g2.setColor(Color.BLACK); // black borders
+                g2.drawRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);
+            }
+        }
+
+        // Draw the Cells of the game board
+        for (int row = numberRowsToSpawnNewBlock; row < boardCells.length; row++) {
+            for (int col = 0; col < numberOfColumns; col++) {
+                int xPosition = col * TILE_SIZE + padding;
+                int yPosition = row * TILE_SIZE + padding - TILE_SIZE * numberRowsToSpawnNewBlock;
+
+                // white fill color for empty Cells
+                g2.setColor(boardCells[row][col].getIsVisible() ? boardCells[row][col].getColor() : Color.WHITE);
+                g2.fillRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);
+                g2.setColor(Color.BLACK); // black borders
+                g2.drawRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);
+            }
+        }
+    }
+
+    public void startGameThread() {
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
+
+    public void startGame() {
+        this.inPlay = true;
+    }
+
+    public void pauseGame() {
+        this.inPlay = false;
+    }
+
+    @Override
+    public void run() {
+        /* the game logic inside the board */
+        while (gameThread != null) {
+            if (inPlay & !gameOver) {
+                /* if an active cell exists : */
+                if (activeCellsExist()) {
+                    int[] down = { 1, 0 };
+                    /* if moving it down is possible : */
+                    if (isPossibleTranslation(down)) {
+                        makeActiveCellsInactiveAndInvisible();
+                        /* move the active cell down 1 step */
+                        translateActiveCell(down);
+                        paintActiveCellStateOnBoard();
+                    }
+                    // else (if moving it down is not possible) :
+                    else {
+                        /* make all active cells inactive */
+                        setAllActiveCellsInactive();
+                    }
+                }
+                /* else (if there is no active cell) : */
+                else {
+                    /* if there is a visible block inside the first spawning area : */
+                    if (VisibleExistsinSpawning()) { /* GAME OVER */
+                        /* record highscore and game over (set inPlay to false) */
+                        gameOver();
+                    }
+                    /* else (there is no visible cell) : */
+                    else {
+                        /* add a new block */
+                        eraseCompleteLines();
+                        spawnRandomBlock();
+                    }
+                }
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            };
+        }
+    }
+
+    private void gameOver() {
+        System.out.println("Game Over");
+        gameOver = true;
+    }
+
+    private Boolean isInbound(int row, int col) {
+        return (0 <= row) & (row < boardCells.length) & (0 <= col) & (col < boardCells[0].length);
+    }
+
+    public void translateActiveCell(int[] direction) {
+        int translationRow = direction[0];
+        int translationColumn = direction[1];
+        if (currentActiveBlock != null) {
+            currentActiveBlockRowPosition += translationRow;
+            currentActiveBlockColumnPosition += translationColumn;
+        } else {
+            spawnRandomBlock();
+            translateActiveCell(direction);
+        }
+    }
+
+    /**
+     *
+     * @param direction
+     * @return returns `True` if all active cells when translated with given
+     *         translation the
+     *         current active cells are inbound and do not coincide with other
+     *         visible
+     *         cells. else False.
+     *
+     */
+    private Boolean isPossibleTranslation(int[] direction) {
+        int translationRow = direction[0];
+        int translationColumn = direction[1];
+
+        for (int row = 0; row < boardCells.length; row++) {
+            for (int col = 0; col < boardCells[0].length; col++) {
+                if (boardCells[row][col].getIsActive()) {
+                    if (!isInbound(row + translationRow, col + translationColumn))
+                        return false;
+                    if (boardCells[row + translationRow][col + translationColumn].getIsActive())
+                        continue;
+                    if (boardCells[row + translationRow][col + translationColumn].getIsVisible())
+                        return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean VisibleExistsinSpawning() {
+        int currRow = 0;
+        for (Cell cellRow[] : boardCells) {
+            if (currRow >= numberRowsToSpawnNewBlock) {
+                break;
+            }
+            for (Cell cell : cellRow) {
+                if (cell.getIsVisible()) {
+                    return true;
+                }
+            }
+            currRow++;
+        }
+        return false;
+    }
+
+    private boolean activeCellsExist() {
+        for (Cell cellRow[] : boardCells) {
+            for (Cell cell : cellRow) {
+                if (cell.getIsActive()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void spawnRandomBlock() {
+        Block newBlock = Block.getRandomBlockType();
+        addNewBlockToBoard(newBlock);
+    }
+
+    private void addNewBlockToBoard(Block newBlock) {
+        currentActiveBlock = newBlock;
+        Color newBlockColor = newBlock.getColor();
+        int newBlockGridSize = currentActiveBlock.getGridSize();
+        int[][] newBlockState = newBlock.getCurrentState();
+        int shiftedRowPosition, shiftedColumnPosition;
+        /* place it just above the bottom of spawning area */
+        currentActiveBlockRowPosition = numberRowsToSpawnNewBlock - newBlockGridSize;
+        /* blace it at the center horizontally */
+        currentActiveBlockColumnPosition = (numberOfColumns - newBlockGridSize) / 2;
+
+        for (int row = 0; row < newBlockGridSize; row++) {
+            for (int col = 0; col < newBlockGridSize; col++) {
+                shiftedRowPosition = currentActiveBlockRowPosition + row;
+                shiftedColumnPosition = currentActiveBlockColumnPosition + col;
+                if (newBlockState[row][col] == 1) {
+                    boardCells[shiftedRowPosition][shiftedColumnPosition].setColor(newBlockColor);
+                    boardCells[shiftedRowPosition][shiftedColumnPosition].setIsVisible(true);
+                    boardCells[shiftedRowPosition][shiftedColumnPosition].setIsActive(true);
+                }
+            }
+        }
+    }
+
+    private void eraseCompleteLines() {
+        // detect a complete line and call the delete line with it's row index
+        for (int row = 0; row < boardCells.length; row++) {
+            if (isLineComplete(row)) {
+                score = score + (OneTilePoint * numberOfColumns);
+                eraseLine(row);
+            }
+        }
+    }
+
+    private Boolean isLineComplete(int rowIndex) {
+        for (Cell cell : boardCells[rowIndex]) {
+            if (!cell.getIsVisible() && !cell.getIsActive())
+                return false;
+        }
+        return true;
+    }
+
+    private void eraseLine(int rowIndex) {
+        /*
+         * replace all lines with the one above the starting from the rowIndex
+         * given going up. replacing both visibility and color.
+         */
+        for (int row = rowIndex; row > 0; row--) {
+            for (int col = 0; col < boardCells[0].length; col++) {
+                boardCells[row][col].setColor(boardCells[row - 1][col].getColor());
+                boardCells[row][col].setIsVisible(boardCells[row - 1][col].getIsVisible());
+            }
+        }
+    }
+
+    private void setAllActiveCellsInactive() {
+        for (Cell cellRow[] : boardCells) {
+            for (Cell cell : cellRow) {
+                cell.setIsActive(false);
+            }
+        }
+    }
+
+    private void paintActiveCellStateOnBoard() {
+        int[][] newState = currentActiveBlock.getCurrentState();
+
+        for (int row = 0; row < newState.length; row++) {
+            for (int col = 0; col < newState.length; col++) {
+                if (newState[row][col] == 1) {
+                    int newRow = currentActiveBlockRowPosition + row;
+                    int newCol = currentActiveBlockColumnPosition + col;
+                    boardCells[newRow][newCol].setIsVisible(true);
+                    boardCells[newRow][newCol].setIsActive(true);
+                    boardCells[newRow][newCol].setColor(currentActiveBlock.getColor());
+                }
+            }
+        }
+    }
+
+    private void makeActiveCellsInactiveAndInvisible() {
+        for (Cell[] row : boardCells) {
+            for (Cell c : row) {
+                if (c.getIsActive()) {
+                    c.setIsActive(false);
+                    c.setIsVisible(false);
+                }
+            }
+        }
     }
 }
-
-
-// import java.awt.Color;
-// import java.awt.Dimension;
-// import java.awt.Graphics;
-// import javax.swing.JPanel;
-// import javax.swing.border.LineBorder;
-// import com.tetris.Cell;
-// import com.tetris.Blocks.Block;
-
-// private int numberOfColumns;
-// private int numberOfRows;
-// private int gameBoardWidth = 200;
-// private int gameBoardHeight = 400;
-// private final int startX;
-// private final int startY;
-// static int numberRowsToSpawnNewBlock = 4;
-// int CellHeightSize;
-// int CellWidthSize;
-// Cell[][] boardCells;
-// Block currentActiveBlock;
-// int currentActiveBlockRowPosition;
-// int currentActiveBlockColumnPosition;
-// public int Highscore;
-
-// public GameBoard(int numberOfColumns, int numberOfRows, GameForm gameForm) {
-// this.numberOfColumns = numberOfColumns;
-// this.numberOfRows = numberOfRows + numberRowsToSpawnNewBlock;
-
-// // Calculate the starting X and Y coordinates to center the game board
-// this.startX = (GameForm.FRAME_WIDTH - gameBoardWidth) / 2;
-// this.startY = (GameForm.FRAME_HEIGHT - gameBoardHeight) / 2;
-// CellHeightSize = this.gameBoardHeight / this.numberOfRows;
-// CellWidthSize = this.gameBoardWidth / this.numberOfColumns;
-
-// // Set the border and background color of the game board
-// this.setBorder(new LineBorder(Color.BLACK, 5));
-// this.setBackground(Color.WHITE);
-
-// // I should leave 4 Rows on top as a spawning area for the new block.
-// // This way the blocks look like they are being created outside the map
-// // But the 4 rows should stay hidden.
-// boardCells = new Cell[numberOfRows +
-// numberRowsToSpawnNewBlock][numberOfColumns];
-// for (int row = 0; row < boardCells.length; row++) {
-// for (int col = 0; col < this.numberOfColumns; col++) {
-// boardCells[row][col] = new Cell(Color.BLUE, false, false);
-// }
-// }
-
-// }
-
-// /**
-// * Should spawn a new random Block and shows it.
-// */
-// public void spawnRandomBlock() {
-// toggleOffActiveCells();
-// eraseCompleteLines();
-// Block newBlock = Block.getRandomBlockType();
-
-// if (getGameIsOver()) {
-// GameForm.DisplayGameOverView();
-// }
-// addNewBlockToBoard(newBlock);
-// // does the re-rendering on the screen
-// repaint();
-// }
-
-// private void addNewBlockToBoard(Block newBlock) {
-// currentActiveBlock = newBlock;
-// Color newBlockColor = newBlock.getColor();
-// int newBlockGridSize = currentActiveBlock.getGridSize();
-// int[][] newBlockState = newBlock.getCurrentState();
-// int shiftedRowPosition, shiftedColumnPosition;
-// currentActiveBlockRowPosition = numberRowsToSpawnNewBlock - newBlockGridSize;
-// currentActiveBlockColumnPosition = (numberOfColumns - newBlockGridSize) / 2;
-
-// for (int row = 0; row < newBlockGridSize; row++) {
-// for (int col = 0; col < newBlockGridSize; col++) {
-// shiftedRowPosition = currentActiveBlockRowPosition + row;
-// shiftedColumnPosition = currentActiveBlockColumnPosition + col;
-// if (newBlockState[row][col] == 1) {
-// boardCells[shiftedRowPosition][shiftedColumnPosition].setColor(newBlockColor);
-// boardCells[shiftedRowPosition][shiftedColumnPosition].setIsVisible(true); //
-// make visible
-// boardCells[shiftedRowPosition][shiftedColumnPosition].setIsActive(true); //
-// make visible
-// }
-// }
-// }
-// }
-
-// public Boolean translateActiveCell(int translationRow, int translationColumn)
-// {
-// if (currentActiveBlock == null)
-// return false;
-// if (isPossibleTranslation(translationRow, translationColumn)) {
-// currentActiveBlockRowPosition += translationRow;
-// currentActiveBlockColumnPosition += translationColumn;
-// paintActiveCellStateOnBoard();
-// return true;
-// }
-// return false;
-// }
-
-// public void rotateActiveBoard() {
-// int[][] nextRotationState = currentActiveBlock.getNextRotationState();
-
-// if (isPossibleActiveBlockShape(nextRotationState)) {
-// currentActiveBlock.rotate();
-// paintActiveCellStateOnBoard();
-// }
-// }
-
-// private void paintActiveCellStateOnBoard() {
-// toggleActiveCellsInactiveAndInvisible();
-// int[][] newState = currentActiveBlock.getCurrentState();
-
-// int newRow, newCol;
-// for (int row = 0; row < newState.length; row++) {
-// for (int col = 0; col < newState.length; col++) {
-// if (newState[row][col] == 1) {
-// newRow = currentActiveBlockRowPosition + row;
-// newCol = currentActiveBlockColumnPosition + col;
-// boardCells[newRow][newCol].setIsVisible(true);
-// boardCells[newRow][newCol].setIsActive(true);
-// boardCells[newRow][newCol].setColor(currentActiveBlock.getColor());
-// }
-// }
-// }
-
-// repaint();
-// }
-
-// private void toggleActiveCellsInactiveAndInvisible() {
-// for (Cell[] row : boardCells) {
-// for (Cell c : row) {
-// if (c.getIsActive()) {
-// c.setIsActive(false);
-// c.setIsVisible(false);
-// }
-// }
-// }
-// }
-
-// private void toggleOffActiveCells() {
-// for (Cell[] row : boardCells) {
-// for (Cell c : row) {
-// c.setIsActive(false);
-// }
-// }
-// }
-
-// /**
-// *
-// * @param translationRow
-// * @param translationColumn
-// * @return returns `True` if all active cells when translated with given
-// translation the
-// * current active cells are inbound and do not coincide with other visible
-// cells. else False.
-// *
-// */
-// private Boolean isPossibleTranslation(int translationRow, int
-// translationColumn) {
-
-// for (int row = 0; row < boardCells.length; row++) {
-// for (int col = 0; col < boardCells[0].length; col++) {
-// if (boardCells[row][col].getIsActive()) {
-// if (!isInbound(row + translationRow, col + translationColumn))
-// return false;
-// if (boardCells[row + translationRow][col + translationColumn].getIsActive())
-// continue;
-// if (boardCells[row + translationRow][col + translationColumn].getIsVisible())
-// return false;
-// }
-// }
-// }
-// return true;
-// }
-
-// private Boolean isPossibleActiveBlockShape(int[][] newState) {
-// int newRow, newCol;
-// for (int row = 0; row < newState.length; row++) {
-// for (int col = 0; col < newState.length; col++) {
-// // if 1: not inbound or overlaps with other inactive visible cells
-// if (newState[row][col] == 1) {
-// newRow = currentActiveBlockRowPosition + row;
-// newCol = currentActiveBlockColumnPosition + col;
-// if (!isInbound(newRow, newCol))
-// return false;
-// if (boardCells[newRow][newCol].getIsActive())
-// continue;
-// if (boardCells[newRow][newCol].getIsVisible())
-// return false;
-// }
-// }
-// }
-// return true;
-// }
-
-// private Boolean isInbound(int row, int col) {
-// return (0 <= row) & (row < boardCells.length) & (0 <= col) & (col <
-// boardCells[0].length);
-// }
-
-// private void eraseCompleteLines() {
-// // detect a complete line and call the delete line with it's row index
-// for (int row = 0; row < boardCells.length; row++)
-// if (isLineComplete(row))
-// eraseLine(row);
-// }
-
-// private void eraseLine(int rowIndex) {
-// // replace all lines with the one above the
-// // starting from the rowIndex given going up.
-
-// // replacing both visibility and color.
-// for (int row = rowIndex; row > 0; row--) {
-// for (int col = 0; col < boardCells[0].length; col++) {
-// boardCells[row][col].setColor(boardCells[row - 1][col].getColor());
-// boardCells[row][col].setIsVisible(boardCells[row - 1][col].getIsVisible());
-// }
-// }
-
-// // erase the 0 index row
-// for (Cell cell : boardCells[0]) {
-// cell.setIsVisible(false);
-// }
-
-// }
-
-// private Boolean isLineComplete(int rowIndex) {
-// for (Cell cell : boardCells[rowIndex]) {
-// if (!cell.getIsVisible() && !cell.getIsActive())
-// return false;
-// }
-// return true;
-// }
-
-// private Boolean getGameIsOver() {
-// // check whether there are any visible cells on the top 4 Rows.
-// for (int row = 0; row < 4; row++) {
-// for (Cell cell : boardCells[row]) {
-// if (cell.getIsVisible()) {
-// return true;
-// }
-// }
-// }
-// return false;
-// }
-
-// @Override
-// protected void paintComponent(Graphics g) {
-// super.paintComponent(g);
-
-// // Set the bounds of the game board to center it
-// this.setBounds(this.startX, this.startY, this.gameBoardWidth,
-// this.gameBoardHeight);
-
-// // Draw the spawning Area:
-// for (int row = 0; row < numberRowsToSpawnNewBlock; row++) {
-// for (int col = 0; col < this.numberOfColumns; col++) {
-// // white fill color for empty Cells
-// g.setColor(boardCells[row][col].getIsVisible() ?
-// boardCells[row][col].getColor().darker().darker()
-// : Color.GRAY);
-// g.fillRect(col * CellWidthSize, row * CellHeightSize, CellWidthSize,
-// CellHeightSize);
-// g.setColor(Color.BLACK); // black borders
-// g.drawRect(col * CellWidthSize, row * CellHeightSize, CellWidthSize,
-// CellHeightSize);
-// }
-// }
-
-// // Draw the Cells of the game board
-// for (int row = numberRowsToSpawnNewBlock; row < boardCells.length; row++) {
-// for (int col = 0; col < this.numberOfColumns; col++) {
-// // white fill color for empty Cells
-// g.setColor(boardCells[row][col].getIsVisible() ?
-// boardCells[row][col].getColor() : Color.WHITE);
-// g.fillRect(col * CellWidthSize, row * CellHeightSize, CellWidthSize,
-// CellHeightSize);
-// g.setColor(Color.BLACK); // black borders
-// g.drawRect(col * CellWidthSize, row * CellHeightSize, CellWidthSize,
-// CellHeightSize);
-// }
-// }
-// }
-
-// @Override
-// public Dimension getPreferredSize() {
-// return new Dimension(this.gameBoardWidth, this.gameBoardHeight);
-// }
-
-// public void translateActiveCellAllTheWayDown() {
-// while (isPossibleTranslation(1, 0)) {
-// translateActiveCell(1, 0);
-// }
-// }
