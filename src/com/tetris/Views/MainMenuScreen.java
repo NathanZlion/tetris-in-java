@@ -1,19 +1,31 @@
 package com.tetris.Views;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 
-import javax.swing.JPanel;
 
-public class MainMenuScreen extends JPanel {
+public class MainMenuScreen {
+
+    public int selectedOption = 0;
+    String options [] = {
+        "New Game",
+        "Quit"
+    };
 
     MainMenuScreen() {
-
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
 
-
+    public void nextOption() {
+        selectedOption ++;
+        selectedOption = selectedOption % options.length;
     }
+
+    public void prevOption() {
+        selectedOption --;
+        selectedOption = selectedOption % options.length;
+    }
+
+    public void draw(Graphics2D g2){
+        // draws options on the screen
+    }    
 }
