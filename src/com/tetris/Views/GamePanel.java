@@ -36,7 +36,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        double drawInterval = (1_000_000_000 / FPS)*5;
+        double drawInterval = (1_000_000_000 / FPS);
         double delta = 0; // the time change
         long previousTime = System.nanoTime();
         long currentTime;
@@ -49,10 +49,10 @@ public class GamePanel extends JPanel implements Runnable {
             previousTime = currentTime;
 
             // if the time change has reached or exceeded the fps
-            if (delta >= 1) {
+            if (delta >= 0.2) {
                 update();
                 repaint();
-                delta--;
+                delta = delta - 0.2;
             }
         }
     }
@@ -66,17 +66,14 @@ public class GamePanel extends JPanel implements Runnable {
                 showGame = false;
             }
             // check for pause and enter buttons.
-            if (keyHandler.enterTouched) {
+            if (keyHandler.enterPressed) {
                 gameBoard.translateActiveCellToFloor();
             }
-            if (keyHandler.pButtonTouched) {
+            if (keyHandler.pButtonPressed) {
                 /* pause the game and show menu */
                 showGame = false;
                 gameBoard.pauseGame();
             } else {
-                if (keyHandler.upPressed) {
-                    direction = Directions.up;
-                }
                 if (keyHandler.leftPressed) {
                     direction = Directions.left;
                 }
@@ -96,7 +93,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
         /* if in menu screen */
         else {
-            if (keyHandler.enterTouched) {
+            if (keyHandler.enterPressed) {
                 switch (mainMenuScreen.selectedOption) {
                     /* New Game Selected */
                     case 0:
@@ -107,7 +104,7 @@ public class GamePanel extends JPanel implements Runnable {
                     /* Quit selected */
                     case 1:
                         gameFrame.dispose();
-                        System.exit(0);
+                        System.exit(0); /* Stop the program */
                         break;
                     default:
                         break;
@@ -125,6 +122,7 @@ public class GamePanel extends JPanel implements Runnable {
                 }
             }
         }
+        keyHandler.reset();
         // check for directions
     }
 

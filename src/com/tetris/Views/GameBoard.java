@@ -125,7 +125,6 @@ public class GameBoard implements Runnable {
 
     private long previousTime;
     private final long deltaTime = 1_000; // Time interval for each game update (in milliseconds)
-    private final long FPS = 1;
 
     @Override
     public void run() {
@@ -143,13 +142,6 @@ public class GameBoard implements Runnable {
                 if (inPlay & !gameOver) {
                     /* if an active cell exists : */
                     if (activeCellsExist()) {
-                        while (!inputQueue.isEmpty()) {
-                            int[] direction = inputQueue.poll();
-                            if (direction != null) {
-                                translateActiveCell(direction);
-                            }
-                        }
-
                         /* if moving it down is possible : */
                         if (isPossibleTranslation(Directions.down)) {
                             makeActiveCellsInactiveAndInvisible();
@@ -175,22 +167,17 @@ public class GameBoard implements Runnable {
                 }
             }
 
-            // if (elapsedTime > FPS) {
-            if (gamePanel.showGame) {
-                gamePanel.repaint();
+            /* don't wait for the next frame to handle input */
+            while (!inputQueue.isEmpty()) {
+                int[] direction = inputQueue.poll();
+                if (direction != null) {
+                    translateActiveCell(direction);
+                }
             }
-            // }
-
-            // try {
-            //     Thread.sleep(1); // Optional: Add a small delay to yield the thread
-            // } catch (InterruptedException e) {
-            //     e.printStackTrace();
-            // }
         }
     }
 
     private void gameOver() {
-        System.out.println("Game Over");
         gameOver = true;
     }
 
@@ -206,7 +193,6 @@ public class GameBoard implements Runnable {
      *         current active cells are inbound and do not coincide with other
      *         visible
      *         cells. else False.
-     *
      */
     private Boolean isPossibleTranslation(int[] direction) {
         int translationRow = direction[0];
