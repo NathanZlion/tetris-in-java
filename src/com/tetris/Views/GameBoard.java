@@ -101,7 +101,7 @@ public class GameBoard implements Runnable {
                 int yPosition = row * TILE_SIZE + padding - TILE_SIZE * numberRowsToSpawnNewBlock;
 
                 // white fill color for empty Cells
-                g2.setColor(Color.RED);
+                g2.setColor(Color.BLACK);
                 g2.fillRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);
                 g2.setColor(Color.BLACK); // black borders
                 g2.drawRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);

@@ -16,7 +16,7 @@ public class GamePanel extends JPanel implements Runnable {
     GameBoard gameBoard;
 
     MainMenuScreen mainMenuScreen = new MainMenuScreen();
-    public boolean showGame = true;
+    public boolean showGame = false; /* on start show the menu screen. */
     private final int FPS = 60;
     keyHandlerManager keyHandler = new keyHandlerManager();
     private JFrame gameFrame;
@@ -62,6 +62,9 @@ public class GamePanel extends JPanel implements Runnable {
         // if in the showGame state:
         int[] direction = null;
         if (showGame) {
+            if (gameBoard.gameOver){
+                showGame = false;
+            }
             // check for pause and enter buttons.
             if (keyHandler.enterTouched) {
                 gameBoard.translateActiveCellToFloor();
@@ -104,6 +107,7 @@ public class GamePanel extends JPanel implements Runnable {
                     /* Quit selected */
                     case 1:
                         gameFrame.dispose();
+                        System.exit(0);
                         break;
                     default:
                         break;
@@ -127,6 +131,9 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
+        /* clear the screen */
+        g2.clearRect(0, 0, getWidth(), getHeight());
+
         if (showGame) {
             gameBoard.draw(g2);
         } else {
