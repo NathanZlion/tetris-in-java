@@ -4,7 +4,6 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
-
 public class MainMenuScreen {
 
     public int selectedOption = 0;
@@ -17,13 +16,17 @@ public class MainMenuScreen {
     }
 
     public void nextOption() {
-        selectedOption++;
-        selectedOption = selectedOption % options.length;
+        if (selectedOption < options.length - 1) {
+            selectedOption++;
+        }
+        /* selectedOption = selectedOption % options.length; */
     }
 
     public void prevOption() {
-        selectedOption--;
-        selectedOption = selectedOption % options.length;
+        if (selectedOption > 0) {
+            selectedOption--;
+        }
+        /* selectedOption = selectedOption % options.length; */
     }
 
     public void draw(Graphics2D g2) {
@@ -37,5 +40,6 @@ public class MainMenuScreen {
             g2.drawString(options[index], 100, height);
             height += 40;
         }
+        System.out.println(selectedOption);
     }
 }
