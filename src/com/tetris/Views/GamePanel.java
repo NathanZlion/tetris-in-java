@@ -57,35 +57,26 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    /**
+     * handles user inputs in here.
+     */
     public void update() {
-        // Handle User Inputs here
-        // if in the showGame state:
         int[] direction = null;
         if (showGame) {
-            if (gameBoard.gameOver){
-                showGame = false;
-            }
+            if (gameBoard.gameOver) showGame = false;
+            
             // check for pause and enter buttons.
-            if (keyHandler.enterPressed) {
-                gameBoard.translateActiveCellToFloor();
-            }
+            if (keyHandler.spacebarPressed) gameBoard.translateActiveCellToFloor();
             if (keyHandler.pButtonPressed) {
                 /* pause the game and show menu */
                 showGame = false;
                 gameBoard.pauseGame();
             } else {
-                if (keyHandler.leftPressed) {
-                    direction = Directions.left;
-                }
-                if (keyHandler.rightPressed) {
-                    direction = Directions.right;
-                }
-                if (keyHandler.downPressed) {
-                    direction = Directions.down;
-                }
-                if (keyHandler.spacebarPressed) {
-                    gameBoard.rotateActiveCell();
-                }
+                if (keyHandler.leftPressed) direction = Directions.left;
+                if (keyHandler.rightPressed) direction = Directions.right;
+                if (keyHandler.downPressed) direction = Directions.down;
+                if (keyHandler.upPressed) gameBoard.rotateActiveCell();
+                
             }
             if (direction != null) {
                 gameBoard.enqueueInput(direction);
@@ -110,12 +101,8 @@ public class GamePanel extends JPanel implements Runnable {
                         break;
                 }
             } else {
-                if (keyHandler.upPressed) {
-                    mainMenuScreen.prevOption();
-                }
-                if (keyHandler.downPressed) {
-                    mainMenuScreen.nextOption();
-                }
+                if (keyHandler.upPressed)  mainMenuScreen.prevOption();
+                if (keyHandler.downPressed) mainMenuScreen.nextOption();
                 if (keyHandler.escapePressed) {
                     showGame = true;
                     gameBoard.startGame();
@@ -123,7 +110,6 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
         keyHandler.reset();
-        // check for directions
     }
 
     @Override

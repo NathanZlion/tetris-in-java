@@ -5,7 +5,6 @@ import java.awt.Graphics2D;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-
 import com.tetris.GameForm;
 import com.tetris.Entity.Cell;
 import com.tetris.Entity.Directions;
@@ -17,7 +16,6 @@ public class GameBoard implements Runnable {
     private final int TILE_SIZE = 40;
     private static int numberRowsToSpawnNewBlock = 4;
     public int padding = 50;
-
     public int numberOfColumns = (GameForm.FRAME_WIDTH - (2 * padding)) / TILE_SIZE;
     public int numberOfRows = (GameForm.FRAME_HEIGHT - (2 * padding)) / TILE_SIZE + numberRowsToSpawnNewBlock;
 
@@ -25,7 +23,11 @@ public class GameBoard implements Runnable {
     public boolean inPlay = true;
     public boolean gameOver = false;
     private int OneTilePoint = 1;
-    public int score;
+    public int score = 0;
+
+    private int fastFallTime = 100;
+    private int mediumFallTime = 500;
+    private int slowFallTime = 1_000;
 
     Block currentActiveBlock;
     int currentActiveBlockRowPosition;
@@ -36,8 +38,6 @@ public class GameBoard implements Runnable {
     GamePanel gamePanel;
 
     public GameBoard(GamePanel gp) {
-        System.out.println(numberOfRows);
-        System.out.println(numberOfColumns);
         gamePanel = gp;
         reset();
     }
@@ -66,22 +66,9 @@ public class GameBoard implements Runnable {
     }
 
     public void draw(Graphics2D g2) {
-        // draws the game board on the screen
-        // Draw the spawning Area: Just for debugging purposse
-        for (int row = 0; row < numberRowsToSpawnNewBlock; row++) {
-            for (int col = 0; col < numberOfColumns; col++) {
-                // white fill color for empty Cells
-                int xPosition = col * TILE_SIZE + padding;
-                int yPosition = row * TILE_SIZE + padding - TILE_SIZE * numberRowsToSpawnNewBlock;
-                g2.setColor(boardCells[row][col].getIsVisible() ? boardCells[row][col].getColor().darker().darker()
-                        : Color.GRAY);
-                g2.fillRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);
-                g2.setColor(Color.BLACK); // black borders
-                g2.drawRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);
-            }
-        }
+        paintActiveCellOnBoard();
 
-        // Draw the Cells of the game board
+        // paint board
         for (int row = numberRowsToSpawnNewBlock; row < numberOfRows; row++) {
             for (int col = 0; col < numberOfColumns; col++) {
                 int xPosition = col * TILE_SIZE + padding;
@@ -94,20 +81,18 @@ public class GameBoard implements Runnable {
                 g2.drawRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);
             }
         }
-        for (int row = 0; row < boardCells.length; row++) {
-            int cols[] = { -1, numberOfColumns };
-            for (int col : cols) {
-                int xPosition = col * TILE_SIZE + padding;
-                int yPosition = row * TILE_SIZE + padding - TILE_SIZE * numberRowsToSpawnNewBlock;
 
-                // white fill color for empty Cells
-                g2.setColor(Color.BLACK);
-                g2.fillRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);
-                g2.setColor(Color.BLACK); // black borders
-                g2.drawRect(xPosition, yPosition, TILE_SIZE, TILE_SIZE);
-            }
-        }
-        paintActiveCellOnBoard();
+        // paint score
+        drawScore(g2);
+    }
+
+    private void drawScore(Graphics2D graphics2DImage) {
+        String scoreString = Integer.toString(score);
+        int stringWidthLength = (int) graphics2DImage.getFontMetrics().getStringBounds(scoreString, graphics2DImage)
+                .getWidth();
+        int horizontalCenter = GameForm.FRAME_WIDTH / 2 - stringWidthLength / 2;
+
+        graphics2DImage.drawString(scoreString, horizontalCenter, 10);
     }
 
     public void startGameThread() {
@@ -124,7 +109,7 @@ public class GameBoard implements Runnable {
     }
 
     private long previousTime;
-    private final long deltaTime = 1_000; // Time interval for each game update (in milliseconds)
+    private final long fallingTime = mediumFallTime; // Time interval for each game update (in milliseconds)
 
     @Override
     public void run() {
@@ -136,7 +121,7 @@ public class GameBoard implements Runnable {
             long currentTime = System.currentTimeMillis();
             long elapsedTime = currentTime - previousTime;
 
-            if (elapsedTime >= deltaTime) {
+            if (elapsedTime >= fallingTime) {
                 previousTime = currentTime;
 
                 if (inPlay & !gameOver) {
@@ -407,3 +392,4 @@ public class GameBoard implements Runnable {
         }
     }
 }
+
