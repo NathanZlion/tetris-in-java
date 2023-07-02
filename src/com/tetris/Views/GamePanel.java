@@ -2,11 +2,11 @@ package com.tetris.Views;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.tetris.Entity.Directions;
+import com.tetris.utils.HighScoreHandler;
 import com.tetris.GameForm;
 import com.tetris.Controllers.keyHandlerManager;
 
@@ -20,18 +20,18 @@ public class GamePanel extends JPanel implements Runnable {
     private final int FPS = 60;
     keyHandlerManager keyHandler = new keyHandlerManager();
     private JFrame gameFrame;
+    HighScoreHandler highScoreHandler = new HighScoreHandler();
+    int highScore = highScoreHandler.readHighScore();
 
     public GamePanel(JFrame gf) {
         gameFrame = gf;
         setBounds(GameForm.rectangle);
         setDoubleBuffered(true);
-        gameBoard = new GameBoard(this);
+        gameBoard = new GameBoard(this, highScoreHandler);
         gameBoard.startGameThread();
-
         addKeyListener(keyHandler);
         /* SETTING FOCUSSABLE ENABLES FOR KEY LISTENING. */
         setFocusable(true);
-
     }
 
     @Override
@@ -44,6 +44,7 @@ public class GamePanel extends JPanel implements Runnable {
         // Used the delta/accumulator method to limit frame refresh rate to fps
         while (gamePanelThread.isAlive()) {
             currentTime = System.nanoTime();
+            highScore = highScoreHandler.highscore;
 
             delta += (currentTime - previousTime) / drawInterval;
             previousTime = currentTime;
@@ -63,20 +64,26 @@ public class GamePanel extends JPanel implements Runnable {
     public void update() {
         int[] direction = null;
         if (showGame) {
-            if (gameBoard.gameOver) showGame = false;
-            
+            if (gameBoard.gameOver)
+                showGame = false;
+
             // check for pause and enter buttons.
-            if (keyHandler.spacebarPressed) gameBoard.translateActiveCellToFloor();
+            if (keyHandler.spacebarPressed)
+                gameBoard.translateActiveCellToFloor();
             if (keyHandler.pButtonPressed) {
                 /* pause the game and show menu */
                 showGame = false;
                 gameBoard.pauseGame();
             } else {
-                if (keyHandler.leftPressed) direction = Directions.left;
-                if (keyHandler.rightPressed) direction = Directions.right;
-                if (keyHandler.downPressed) direction = Directions.down;
-                if (keyHandler.upPressed) gameBoard.rotateActiveCell();
-                
+                if (keyHandler.leftPressed)
+                    direction = Directions.left;
+                if (keyHandler.rightPressed)
+                    direction = Directions.right;
+                if (keyHandler.downPressed)
+                    direction = Directions.down;
+                if (keyHandler.upPressed)
+                    gameBoard.rotateActiveCell();
+
             }
             if (direction != null) {
                 gameBoard.enqueueInput(direction);
@@ -96,14 +103,17 @@ public class GamePanel extends JPanel implements Runnable {
                     case 1:
                         gameFrame.dispose();
                         System.exit(0); /* Stop the program */
+                        highScoreHandler.writeHighScore(highScore);
                         break;
                     default:
                         break;
                 }
             } else {
-                if (keyHandler.upPressed)  mainMenuScreen.prevOption();
-                if (keyHandler.downPressed) mainMenuScreen.nextOption();
-                if (keyHandler.escapePressed) {
+                if (keyHandler.upPressed)
+                    mainMenuScreen.prevOption();
+                if (keyHandler.downPressed)
+                    mainMenuScreen.nextOption();
+                if (keyHandler.escapePressed || keyHandler.pButtonPressed) {
                     showGame = true;
                     gameBoard.startGame();
                 }
@@ -122,6 +132,8 @@ public class GamePanel extends JPanel implements Runnable {
             gameBoard.draw(g2);
         } else {
             mainMenuScreen.draw(g2);
+            /* draw the highscore */
+            g2.drawString("High Score > " + Integer.toString(highScore), 0, GameForm.FRAME_HEIGHT - 100);
         }
         /* for better performance */
         g2.dispose();
