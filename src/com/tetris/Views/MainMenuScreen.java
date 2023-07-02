@@ -11,7 +11,7 @@ public class MainMenuScreen {
     public int selectedOption = 0;
     String options[] = {
             "New Game",
-            "Quit         "
+            "Quit"
     };
 
     private int textHeight = 50;

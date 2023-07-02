@@ -9,6 +9,7 @@ import com.tetris.GameForm;
 import com.tetris.Entity.Cell;
 import com.tetris.Entity.Directions;
 import com.tetris.Entity.Blocks.Block;
+import com.tetris.utils.HighScoreHandler;
 
 public class GameBoard implements Runnable {
 
@@ -25,9 +26,9 @@ public class GameBoard implements Runnable {
     private int OneTilePoint = 1;
     public int score = 0;
 
-    private int fastFallTime = 100;
+    // private int fastFallTime = 100;
     private int mediumFallTime = 500;
-    private int slowFallTime = 1_000;
+    // private int slowFallTime = 1_000;
 
     Block currentActiveBlock;
     int currentActiveBlockRowPosition;
@@ -36,9 +37,11 @@ public class GameBoard implements Runnable {
 
     Thread gameThread;
     GamePanel gamePanel;
+    HighScoreHandler highScoreHandler;
 
-    public GameBoard(GamePanel gp) {
+    public GameBoard(GamePanel gp, HighScoreHandler highScoreHandler) {
         gamePanel = gp;
+        this.highScoreHandler = highScoreHandler;
         reset();
     }
 
@@ -105,11 +108,12 @@ public class GameBoard implements Runnable {
     }
 
     public void pauseGame() {
+        highScoreHandler.writeHighScore(score);
         this.inPlay = false;
     }
 
     private long previousTime;
-    private final long fallingTime = mediumFallTime; // Time interval for each game update (in milliseconds)
+    private final long fallingTime = mediumFallTime;
 
     @Override
     public void run() {
@@ -117,7 +121,6 @@ public class GameBoard implements Runnable {
 
         /* the game logic inside the board */
         while (gameThread != null) {
-
             long currentTime = System.currentTimeMillis();
             long elapsedTime = currentTime - previousTime;
 
@@ -163,6 +166,7 @@ public class GameBoard implements Runnable {
     }
 
     private void gameOver() {
+        highScoreHandler.writeHighScore(score);
         gameOver = true;
     }
 
@@ -360,11 +364,11 @@ public class GameBoard implements Runnable {
         return true;
     }
 
+    /**
+     * Replace all lines with the one above, the starting from the rowIndex
+     * given going up. replacing both visibility and color.
+     */
     private void eraseLine(int rowIndex) {
-        /*
-         * replace all lines with the one above the starting from the rowIndex
-         * given going up. replacing both visibility and color.
-         */
         for (int row = rowIndex; row > 0; row--) {
             for (int col = 0; col < boardCells[0].length; col++) {
                 boardCells[row][col].setColor(boardCells[row - 1][col].getColor());
@@ -392,4 +396,3 @@ public class GameBoard implements Runnable {
         }
     }
 }
-
