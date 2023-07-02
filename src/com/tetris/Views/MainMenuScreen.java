@@ -36,12 +36,11 @@ public class MainMenuScreen {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Font font = new Font("Serif", Font.PLAIN, 50);
         g2.setFont(font);
-
+        
         font = new Font("Serif", Font.PLAIN, 40);
-
         drawXCenteredText(g2, "TETRIS GAME", 100);
-
         g2.setFont(font);
+
         int height = (GameForm.FRAME_HEIGHT / 2) - (menuPageHeight / 2);
         for (int index = 0; index < options.length; index++) {
             g2.drawString(index == selectedOption ? "[>]" : "[  ]", 20, height);
@@ -52,17 +51,17 @@ public class MainMenuScreen {
     }
 
     /**
-     * Draws a string centered horizontally on the screen.
-     *
+     * Draws a string centered horizontally on the screen. Vertical position on 
+     * the screen will have to be inputted.
+     * 
      * @param graphics2DImage
-     * @param string
+     * @param text
      * @param verticalPosition
      */
-    private static void drawXCenteredText(Graphics2D graphics2DImage, String string, int verticalPosition) {
-        int stringWidthLength = (int) graphics2DImage.getFontMetrics().getStringBounds(string, graphics2DImage).getWidth();
-
+    private static void drawXCenteredText(Graphics2D graphics2DImage, String text, int verticalPosition) {
+        int stringWidthLength = (int) graphics2DImage.getFontMetrics().getStringBounds(text, graphics2DImage).getWidth();
         int horizontalCenter = GameForm.FRAME_WIDTH / 2 - stringWidthLength / 2;
 
-        graphics2DImage.drawString(string, horizontalCenter, verticalPosition);
+        graphics2DImage.drawString(text, horizontalCenter, verticalPosition);
     }
 }
