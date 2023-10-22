@@ -9,62 +9,29 @@ public class keyHandlerManager implements KeyListener {
             escapePressed;
 
     @Override
-    public void keyTyped(KeyEvent e) { 
+    public void keyTyped(KeyEvent e) {
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        // int keyCode = e.getKeyCode();
-
-        // if (keyCode == KeyEvent.VK_UP) {
-        //     upPressed = true;
-        // }
-
-        // if (keyCode == KeyEvent.VK_DOWN) {
-        //     downPressed = true;
-        // }
-
-        // if (keyCode == KeyEvent.VK_LEFT) {
-        //     leftPressed = true;
-        // }
-
-        // if (keyCode == KeyEvent.VK_RIGHT) {
-        //     rightPressed = true;
-        // }
-
-        // if (keyCode == KeyEvent.VK_ENTER) {
-        //     enterPressed = true;
-        // }
-
-        // if (keyCode == KeyEvent.VK_P) {
-        //     pButtonPressed = true;
-        // }
-
-        // if (keyCode == KeyEvent.VK_SPACE) {
-        //     spacebarPressed = true;
-        // }
-
-        // if (keyCode == KeyEvent.VK_ESCAPE) {
-        //     escapePressed = true;
-        // }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
-        if (keyCode == KeyEvent.VK_UP) {
+        if (keyCode == KeyEvent.VK_I) {
             upPressed = true;
         }
 
-        if (keyCode == KeyEvent.VK_DOWN) {
+        if (keyCode == KeyEvent.VK_K) {
             downPressed = true;
         }
 
-        if (keyCode == KeyEvent.VK_LEFT) {
+        if (keyCode == KeyEvent.VK_J) {
             leftPressed = true;
         }
 
-        if (keyCode == KeyEvent.VK_RIGHT) {
+        if (keyCode == KeyEvent.VK_L) {
             rightPressed = true;
         }
 
