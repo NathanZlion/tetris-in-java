@@ -39,10 +39,13 @@ Features:
 Screens
 
 - Splash Screen: showing the game logo... (to be implemented last)
+
 - Home screen: which can be used to provide option Play, showing the current high-score.
-![Menu Screen](./Documentation/Images/main_meni_image.png)
+<img  alt="Menu Screen" src="./Documentation/Images/main_menu_image.png" width="400"/> 
+
 - Game play Screen: Where you play the game.
-![Menu Screen](./Documentation/Images/game_play_image.png)
+<img  alt="Game Play Screen" src="./Documentation/Images/game_play_image.png" width="400"/> 
+
 
 ---
 [`progress track`](https://app.clickup.com/9009124457/v/l/s/90090257110)<br>
