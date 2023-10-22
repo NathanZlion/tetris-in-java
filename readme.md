@@ -17,16 +17,29 @@ Aim of the project
 
 ```
 
+Screens
+
+- Splash Screen: showing the game logo... (to be implemented last)
+
+- Home screen: which can be used to provide option Play, showing the current high-score.
+
+<img alt="Menu Screen" src="./Documentation/Images/main_menu_image.png" width="400"/> 
+
+- Game play Screen: Where you play the game.
+
+<img alt="Game Play Screen" src="./Documentation/Images/game_play_image.png" width="400"/> 
+
 Features:
 - The normal game functionality
 	- Different shapes
 	- key Strokes:
-		- `Left Key` : shift shape one block left
-		- `Right Key` : shift shape one block right
-		- `Down Key` : move one step down (makes the fall faster)
-		- `UP - key` : Rotate the shape
+		- `j Key` : shift shape one block left
+		- `l Key` : shift shape one block right
+		- `k Key` : move one step down (makes the fall faster)
+		- `i - key` : Rotate the shape
 		- `Space Key` : move the shape all the way down.
 		- `P - key` : Pause / Play
+		- `Esc - key` : exit the pause menu
 
 - High-score Recording : record the high-score so far.
 - Sound Effects :
@@ -36,15 +49,6 @@ Features:
 	- Game Over Sound
 
 
-Screens
-
-- Splash Screen: showing the game logo... (to be implemented last)
-
-- Home screen: which can be used to provide option Play, showing the current high-score.
-<img  alt="Menu Screen" src="./Documentation/Images/main_menu_image.png" width="400"/> 
-
-- Game play Screen: Where you play the game.
-<img  alt="Game Play Screen" src="./Documentation/Images/game_play_image.png" width="400"/> 
 
 
 ---
